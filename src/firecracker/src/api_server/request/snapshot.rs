@@ -98,6 +98,8 @@ fn parse_put_snapshot_load(body: &Body) -> Result<ParsedRequest, RequestError> {
                 // either `mem_file_path` or `mem_backend` field is always specified.
                 backend_path: snapshot_config.mem_file_path.unwrap(),
                 backend_type: MemBackendType::File,
+                use_base: false,
+                base_mem_file_path: PathBuf::new()
             }
         }
     };
@@ -145,6 +147,8 @@ mod tests {
             snapshot_type: SnapshotType::Diff,
             snapshot_path: PathBuf::from("foo"),
             mem_file_path: PathBuf::from("bar"),
+            use_base: false,
+            base_mem_file_path: PathBuf::new()
         };
         assert_eq!(
             vmm_action_from_request(parse_put_snapshot(&Body::new(body), Some("create")).unwrap()),
@@ -159,6 +163,8 @@ mod tests {
             snapshot_type: SnapshotType::Full,
             snapshot_path: PathBuf::from("foo"),
             mem_file_path: PathBuf::from("bar"),
+            use_base: false,
+            base_mem_file_path: PathBuf::new()
         };
         assert_eq!(
             vmm_action_from_request(parse_put_snapshot(&Body::new(body), Some("create")).unwrap()),
@@ -183,6 +189,8 @@ mod tests {
             mem_backend: MemBackendConfig {
                 backend_path: PathBuf::from("bar"),
                 backend_type: MemBackendType::File,
+                use_base: false,
+                base_mem_file_path: PathBuf::new()
             },
             track_dirty_pages: false,
             resume_vm: false,
@@ -213,6 +221,8 @@ mod tests {
             mem_backend: MemBackendConfig {
                 backend_path: PathBuf::from("bar"),
                 backend_type: MemBackendType::File,
+                use_base: false,
+                base_mem_file_path: PathBuf::new()
             },
             track_dirty_pages: true,
             resume_vm: false,
@@ -243,6 +253,8 @@ mod tests {
             mem_backend: MemBackendConfig {
                 backend_path: PathBuf::from("bar"),
                 backend_type: MemBackendType::Uffd,
+                use_base: false,
+                base_mem_file_path: PathBuf::new()
             },
             track_dirty_pages: false,
             resume_vm: true,
@@ -279,6 +291,8 @@ mod tests {
             mem_backend: MemBackendConfig {
                 backend_path: PathBuf::from("bar"),
                 backend_type: MemBackendType::Uffd,
+                use_base: false,
+                base_mem_file_path: PathBuf::new()
             },
             track_dirty_pages: false,
             resume_vm: true,
@@ -309,6 +323,8 @@ mod tests {
             mem_backend: MemBackendConfig {
                 backend_path: PathBuf::from("bar"),
                 backend_type: MemBackendType::File,
+                use_base: false,
+                base_mem_file_path: PathBuf::new()
             },
             track_dirty_pages: false,
             resume_vm: true,

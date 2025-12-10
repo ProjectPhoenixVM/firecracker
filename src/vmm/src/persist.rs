@@ -366,6 +366,8 @@ pub fn restore_from_snapshot(
 
     let mem_backend_path = &params.mem_backend.backend_path;
     let mem_state = &microvm_state.vm_state.memory;
+    let use_base = &params.mem_backend.use_base;
+    let base_path = &params.mem_backend.backend_path;
 
     let (guest_memory, uffd) = match params.mem_backend.backend_type {
         MemBackendType::File => {
@@ -383,6 +385,8 @@ pub fn restore_from_snapshot(
         }
         MemBackendType::Uffd => guest_memory_from_uffd(
             mem_backend_path,
+            uuse_base,
+            base_path,
             mem_state,
             track_dirty_pages,
             vm_resources.machine_config.huge_pages,
@@ -459,6 +463,8 @@ pub enum GuestMemoryFromUffdError {
 
 fn guest_memory_from_uffd(
     mem_uds_path: &Path,
+    use_base: bool,
+    base_path: &Path,
     mem_state: &GuestMemoryState,
     track_dirty_pages: bool,
     huge_pages: HugePageConfig,
@@ -486,7 +492,7 @@ fn guest_memory_from_uffd(
             .map_err(GuestMemoryFromUffdError::Register)?;
     }
 
-    send_uffd_handshake(mem_uds_path, &backend_mappings, &uffd)?;
+    send_uffd_handshake(mem_uds_path, use_base, base_path, &backend_mappings, &uffd)?;
 
     Ok((guest_memory, Some(uffd)))
 }
@@ -516,11 +522,16 @@ fn create_guest_memory(
 
 fn send_uffd_handshake(
     mem_uds_path: &Path,
+    use_base: bool,
+    base_path: &Path,
     backend_mappings: &[GuestRegionUffdMapping],
     uffd: &impl AsRawFd,
 ) -> Result<(), GuestMemoryFromUffdError> {
     // This is safe to unwrap() because we control the contents of the vector
     // (i.e GuestRegionUffdMapping entries).
+    if (use_base) {
+        // TODO: Somehow add the base_path to the socket
+    }
     let backend_mappings = serde_json::to_string(backend_mappings).unwrap();
 
     let socket = UnixStream::connect(mem_uds_path)?;
@@ -736,7 +747,7 @@ mod tests {
 
         let listener = UnixListener::bind(uds_path).expect("Cannot bind to socket path");
 
-        send_uffd_handshake(uds_path, &uffd_regions, &std::io::stdin()).unwrap();
+        send_uffd_handshake(uds_path, false, PathBuff::new(), &uffd_regions, &std::io::stdin()).unwrap();
 
         let (stream, _) = listener.accept().expect("Cannot listen on UDS socket");
 

@@ -805,6 +805,16 @@ impl RuntimeApiController {
                     elapsed_time_us
                 );
             }
+            SnapshotType::Ashes => {
+                let elapsed_time_us = update_metric_with_elapsed_time(
+                    &METRICS.latencies_us.vmm_ashes_create_snapshot,
+                    create_start_us,
+                );
+                info!(
+                    "'create diff snapshot' VMM action took {} us.",
+                    elapsed_time_us
+                );
+            }
         }
         Ok(VmmData::Empty)
     }
@@ -1162,6 +1172,8 @@ mod tests {
                 snapshot_type: SnapshotType::Full,
                 snapshot_path: PathBuf::new(),
                 mem_file_path: PathBuf::new(),
+                use_base: false,
+                base_mem_file_path: PathBuf::new()
             },
         )));
         #[cfg(target_arch = "x86_64")]
@@ -1278,6 +1290,8 @@ mod tests {
                 mem_backend: MemBackendConfig {
                     backend_type: MemBackendType::File,
                     backend_path: PathBuf::new(),
+                    use_base: false,
+                    base_mem_file_path: PathBuf::new() 
                 },
                 track_dirty_pages: false,
                 resume_vm: false,

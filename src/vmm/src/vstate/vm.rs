@@ -337,6 +337,9 @@ impl Vm {
                 self.reset_dirty_bitmap();
                 self.guest_memory().reset_dirty();
             }
+            SnapshotType::Ashes => {
+                // TODO: Implement Incinerator here
+            }
         };
 
         file.flush()

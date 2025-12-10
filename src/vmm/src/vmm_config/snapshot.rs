@@ -13,6 +13,8 @@ use serde::{Deserialize, Serialize};
 /// creating a new snapshot.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Deserialize, Serialize)]
 pub enum SnapshotType {
+    /// Ashes snapshot.
+    Ashes,
     /// Diff snapshot.
     Diff,
     /// Full snapshot.
@@ -45,6 +47,13 @@ pub struct CreateSnapshotParams {
     pub snapshot_path: PathBuf,
     /// Path to the file that will contain the guest memory.
     pub mem_file_path: PathBuf,
+    /// Boolean that indicates whether to use base page
+    // Default is false.
+    #[serde(default)]
+    pub use_base: bool,
+    /// Path to file that contains the base snapshot memory.
+    /// This is to be used only when creating diff snapshots with base pages.
+    pub base_mem_file_path: Option<PathBuf>,
 }
 
 /// Allows for changing the mapping between tap devices and host devices
@@ -111,6 +120,13 @@ pub struct MemBackendConfig {
     pub backend_path: PathBuf,
     /// Specifies the guest memory backend type.
     pub backend_type: MemBackendType,
+    // Use base pages when restoring memory from UFFD backend.
+    // Default is false.
+    #[serde(default)]
+    pub use_base: bool,
+    /// Path to file that contains the base snapshot memory.
+    /// This is to be used only when restoring diff snapshots with base pages.
+    pub base_mem_file_path: Option<PathBuf>,
 }
 
 /// The microVM state options.
